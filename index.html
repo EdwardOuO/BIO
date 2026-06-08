@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Biology Study Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8faf8;color:#1a2e1a;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid #d4e8d4;position:sticky;top:0;z-index:100;padding:0 1.5rem}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem;height:60px}
+.logo{font-size:1.1rem;font-weight:700;color:#2d6a2d;white-space:nowrap}
+.logo span{color:#5aab5a}
+.nav-links{display:flex;gap:0.25rem;overflow-x:auto;flex:1}
+.nav-link{padding:6px 12px;border-radius:20px;font-size:0.82rem;color:#4a6a4a;white-space:nowrap;cursor:pointer;transition:all 0.2s;border:none;background:none}
+.nav-link:hover{background:#e8f5e8;color:#2d6a2d}
+.nav-link.active{background:#2d6a2d;color:#fff}
+.hl-badge{background:#e8f0ff;color:#3a5bc7;font-size:0.7rem;padding:2px 7px;border-radius:10px;font-weight:600}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a3a1a 0%,#2d6a2d 100%);color:#fff;padding:3rem 1.5rem;text-align:center}
+.hero h1{font-size:2.2rem;font-weight:700;margin-bottom:0.5rem}
+.hero p{opacity:0.85;font-size:1.05rem;max-width:560px;margin:0 auto 1.5rem}
+.hero-badges{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap}
+.badge{padding:5px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;border:1.5px solid rgba(255,255,255,0.4);color:#fff}
+
+/* MAIN */
+main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+.section-title{font-size:1.4rem;font-weight:700;color:#1a3a1a;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem}
+.section-title::after{content:'';flex:1;height:1px;background:#d4e8d4;margin-left:0.5rem}
+
+/* TOPIC GRID */
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem}
+.topic-card{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.25rem;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.topic-card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(45,106,45,0.12);border-color:#5aab5a}
+.topic-card.active{border-color:#2d6a2d;box-shadow:0 4px 20px rgba(45,106,45,0.2)}
+.topic-icon{font-size:1.6rem;margin-bottom:0.5rem}
+.topic-card h3{font-size:0.9rem;font-weight:700;color:#1a3a1a;margin-bottom:0.25rem}
+.topic-card p{font-size:0.75rem;color:#5a7a5a}
+.topic-num{position:absolute;top:0.75rem;right:0.75rem;font-size:0.7rem;color:#8aaa8a;font-weight:600}
+
+/* CONTENT AREA */
+#content-area{display:none}
+#content-area.show{display:block}
+
+/* TABS */
+.tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:1px solid #d4e8d4;padding-bottom:0}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:0.88rem;font-weight:600;cursor:pointer;color:#5a7a5a;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.2s}
+.tab:hover{color:#2d6a2d}
+.tab.active{color:#2d6a2d;border-bottom-color:#2d6a2d;background:#f0f8f0}
+
+/* SUMMARY */
+.summary-box{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.summary-box h2{font-size:1.2rem;color:#1a3a1a;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #e8f5e8}
+.key-point{display:flex;gap:0.75rem;margin-bottom:0.75rem;align-items:flex-start}
+.key-dot{width:8px;height:8px;border-radius:50%;background:#2d6a2d;margin-top:6px;flex-shrink:0}
+.key-point p{font-size:0.9rem;line-height:1.6;color:#2a4a2a}
+.def-box{background:#f0f8f0;border-left:3px solid #2d6a2d;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin:0.75rem 0;font-size:0.88rem;color:#1a3a1a}
+.def-box strong{color:#2d6a2d}
+.tip-box{background:#fffbeb;border-left:3px solid #f59e0b;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin:0.75rem 0;font-size:0.88rem;color:#78350f}
+
+/* FLASHCARDS */
+.flashcard-area{perspective:1000px;margin-bottom:1.5rem}
+.flashcard{width:100%;min-height:200px;position:relative;transform-style:preserve-3d;transition:transform 0.5s;cursor:pointer;border-radius:12px}
+.flashcard.flipped{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;border:1px solid #d4e8d4}
+.card-front{background:#fff}
+.card-back{background:#2d6a2d;color:#fff;transform:rotateY(180deg)}
+.card-front h3{font-size:1.1rem;color:#1a3a1a;font-weight:700}
+.card-back p{font-size:0.95rem;line-height:1.6}
+.card-hint{font-size:0.8rem;color:#8aaa8a;margin-top:0.75rem}
+.fc-controls{display:flex;gap:0.75rem;align-items:center;justify-content:space-between}
+.fc-btn{padding:8px 20px;border-radius:8px;border:1px solid #d4e8d4;background:#fff;color:#2d6a2d;font-weight:600;cursor:pointer;font-size:0.88rem;transition:all 0.2s}
+.fc-btn:hover{background:#f0f8f0}
+.fc-btn.primary{background:#2d6a2d;color:#fff;border-color:#2d6a2d}
+.fc-btn.primary:hover{background:#235223}
+.fc-progress{font-size:0.85rem;color:#5a7a5a;font-weight:600}
+
+/* QUIZ */
+.quiz-q{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.quiz-q p{font-size:0.95rem;font-weight:600;color:#1a3a1a;margin-bottom:1rem}
+.option{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.85rem;border-radius:8px;border:1px solid #d4e8d4;margin-bottom:0.5rem;cursor:pointer;transition:all 0.2s;font-size:0.88rem;color:#2a4a2a;background:#fafffe}
+.option:hover{border-color:#5aab5a;background:#f0f8f0}
+.option.correct{background:#dcf7dc;border-color:#2d6a2d;color:#1a3a1a}
+.option.wrong{background:#fee2e2;border-color:#ef4444;color:#7f1d1d}
+.option-circle{width:22px;height:22px;border-radius:50%;border:2px solid #d4e8d4;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;color:#5a7a5a}
+.feedback{margin-top:0.75rem;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;display:none}
+.feedback.show{display:block}
+.feedback.correct{background:#dcf7dc;color:#14532d}
+.feedback.wrong{background:#fee2e2;color:#7f1d1d}
+.quiz-score{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.5rem;text-align:center;display:none}
+.quiz-score.show{display:block}
+.score-num{font-size:2.5rem;font-weight:700;color:#2d6a2d}
+
+/* MNEMONIC */
+.mnemonic-card{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.25rem;margin-bottom:0.75rem}
+.mnemonic-card h3{font-size:0.88rem;font-weight:700;color:#5a7a5a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem}
+.mnemonic-word{font-size:1.5rem;font-weight:700;color:#2d6a2d;margin-bottom:0.5rem;letter-spacing:0.05em}
+.mnemonic-expand{font-size:0.88rem;color:#2a4a2a;line-height:1.6}
+.mnemonic-expand span{font-weight:700;color:#2d6a2d}
+
+/* DIAGRAM */
+.diagram-box{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1rem}
+.diagram-box svg{max-width:100%;height:auto}
+.diagram-caption{font-size:0.82rem;color:#5a7a5a;margin-top:0.75rem;font-style:italic}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:8px 16px;border-radius:8px;border:1px solid #d4e8d4;background:#fff;color:#2d6a2d;font-weight:600;cursor:pointer;font-size:0.88rem;margin-bottom:1.5rem;transition:all 0.2s}
+.back-btn:hover{background:#f0f8f0}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+.hero h1{font-size:1.6rem}
+.topic-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">IB Bio <span>Hub</span></div>
+    <div class="nav-links" id="nav-links">
+      <button class="nav-link active" onclick="showHome()">🏠 Home</button>
+      <button class="nav-link" onclick="openTopic(0)">Cell Biology</button>
+      <button class="nav-link" onclick="openTopic(1)">Molecular Biology</button>
+      <button class="nav-link" onclick="openTopic(2)">Genetics</button>
+      <button class="nav-link" onclick="openTopic(3)">Ecology</button>
+      <button class="nav-link" onclick="openTopic(4)">Evolution</button>
+      <button class="nav-link" onclick="openTopic(5)">Human Physiology</button>
+      <button class="nav-link" onclick="openTopic(6)">Nucleic Acids</button>
+      <button class="nav-link" onclick="openTopic(7)">Metabolism</button>
+      <button class="nav-link" onclick="openTopic(8)">Plant Biology</button>
+      <button class="nav-link" onclick="openTopic(9)">Animal Physiology</button>
+    </div>
+    <span class="hl-badge">HL + SL</span>
+  </div>
+</nav>
+
+<div id="home-view">
+  <div class="hero">
+    <h1>🧬 IB Biology Study Hub</h1>
+    <p>Everything you need to master IB Biology HL & SL — summaries, diagrams, flashcards, mnemonics & quizzes.</p>
+    <div class="hero-badges">
+      <span class="badge">📚 10 Topics</span>
+      <span class="badge">🃏 Flashcards</span>
+      <span class="badge">🧠 Mnemonics</span>
+      <span class="badge">📊 Diagrams</span>
+      <span class="badge">✅ Quizzes</span>
+    </div>
+  </div>
+
+  <main>
+    <div class="section-title">📖 Choose a Topic</div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </main>
+</div>
+
+<div id="topic-view" style="display:none">
+  <main>
+    <button class="back-btn" onclick="showHome()">← Back to Topics</button>
+    <div id="topic-header" style="margin-bottom:1.5rem"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('summary')">📋 Summary</button>
+      <button class="tab" onclick="switchTab('diagram')">📊 Diagram</button>
+      <button class="tab" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+      <button class="tab" onclick="switchTab('mnemonics')">🧠 Mnemonics</button>
+      <button class="tab" onclick="switchTab('quiz')">✅ Quiz</button>
+    </div>
+    <div id="tab-content"></div>
+  </main>
+</div>
+
+<script>
+const topics = [
+  {
+    name:"Cell Biology",icon:"🔬",color:"#2d6a2d",sub:"Cell theory, membranes, transport, division",num:"Topic 1",
+    summary:{
+      title:"Cell Biology",
+      points:[
+        "All organisms are made of cells. The cell is the basic unit of life. All cells come from pre-existing cells (Cell Theory).",
+        "Prokaryotic cells (bacteria) have no membrane-bound nucleus, circular DNA, 70S ribosomes, and may have plasmids and flagella.",
+        "Eukaryotic cells have a true nucleus, membrane-bound organelles (mitochondria, ER, Golgi), and 80S ribosomes.",
+        "The cell membrane is a fluid mosaic of phospholipids, proteins, and cholesterol. Phospholipids are amphipathic — hydrophilic heads face outward, hydrophobic tails face inward.",
+        "Transport: passive (simple diffusion, facilitated diffusion, osmosis) requires no energy. Active transport moves molecules against the gradient using ATP.",
+        "Cell cycle: G1 (growth) → S (DNA synthesis) → G2 (prep) → Mitosis → Cytokinesis. Cyclins regulate checkpoints.",
+        "Mitosis phases: Prophase → Metaphase → Anaphase → Telophase (PMAT). Creates 2 identical daughter cells."
+      ],
+      defs:[
+        {term:"Osmosis",def:"Movement of water from low solute concentration to high solute concentration across a semi-permeable membrane."},
+        {term:"Mitotic index",def:"Number of cells in mitosis ÷ total number of cells observed."},
+        {term:"Stem cells",def:"Undifferentiated cells that can divide and differentiate into specialised cell types."}
+      ],
+      tip:"Remember the 7 functions of life: MRS GREN — Movement, Respiration, Sensitivity, Growth, Reproduction, Excretion, Nutrition."
+    },
+    diagram:{
+      title:"Phospholipid Bilayer & Membrane Transport",
+      svg:`<svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="500" height="280" fill="#f8faf8" rx="8"/>
+        <!-- bilayer -->
+        <rect x="20" y="80" width="460" height="50" fill="#c8e6c8" rx="4" opacity="0.5"/>
+        <rect x="20" y="150" width="460" height="50" fill="#c8e6c8" rx="4" opacity="0.5"/>
+        <!-- heads top -->
+        <g fill="#2d6a2d">
+          <circle cx="50" cy="88" r="9"/><circle cx="90" cy="88" r="9"/><circle cx="130" cy="88" r="9"/>
+          <circle cx="170" cy="88" r="9"/><circle cx="210" cy="88" r="9"/><circle cx="250" cy="88" r="9"/>
+          <circle cx="290" cy="88" r="9"/><circle cx="330" cy="88" r="9"/><circle cx="370" cy="88" r="9"/>
+          <circle cx="410" cy="88" r="9"/><circle cx="450" cy="88" r="9"/>
+        </g>
+        <!-- tails top -->
+        <g stroke="#5aab5a" stroke-width="2" fill="none">
+          <line x1="50" y1="97" x2="50" y2="128"/><line x1="90" y1="97" x2="90" y2="128"/>
+          <line x1="130" y1="97" x2="130" y2="128"/><line x1="170" y1="97" x2="170" y2="128"/>
+          <line x1="210" y1="97" x2="210" y2="128"/><line x1="250" y1="97" x2="250" y2="128"/>
+          <line x1="290" y1="97" x2="290" y2="128"/><line x1="330" y1="97" x2="330" y2="128"/>
+          <line x1="370" y1="97" x2="370" y2="128"/><line x1="410" y1="97" x2="410" y2="128"/>
+          <line x1="450" y1="97" x2="450" y2="128"/>
+        </g>
+        <!-- tails bottom -->
+        <g stroke="#5aab5a" stroke-width="2" fill="none">
+          <line x1="50" y1="152" x2="50" y2="183"/><line x1="90" y1="152" x2="90" y2="183"/>
+          <line x1="130" y1="152" x2="130" y2="183"/><line x1="170" y1="152" x2="170" y2="183"/>
+          <line x1="210" y1="152" x2="210" y2="183"/><line x1="250" y1="152" x2="250" y2="183"/>
+          <line x1="290" y1="152" x2="290" y2="183"/><line x1="330" y1="152" x2="330" y2="183"/>
+          <line x1="370" y1="152" x2="370" y2="183"/><line x1="410" y1="152" x2="410" y2="183"/>
+          <line x1="450" y1="152" x2="450" y2="183"/>
+        </g>
+        <!-- heads bottom -->
+        <g fill="#2d6a2d">
+          <circle cx="50" cy="192" r="9"/><circle cx="90" cy="192" r="9"/><circle cx="130" cy="192" r="9"/>
+          <circle cx="170" cy="192" r="9"/><circle cx="210" cy="192" r="9"/><circle cx="250" cy="192" r="9"/>
+          <circle cx="290" cy="192" r="9"/><circle cx="330" cy="192" r="9"/><circle cx="370" cy="192" r="9"/>
+          <circle cx="410" cy="192" r="9"/><circle cx="450" cy="192" r="9"/>
+        </g>
+        <!-- protein channel -->
+        <rect x="155" y="88" width="30" height="104" fill="#e8a020" rx="6" opacity="0.85"/>
+        <text x="170" y="145" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">CHANNEL</text>
+        <!-- cholesterol -->
+        <rect x="315" y="105" width="18" height="70" fill="#c47a2d" rx="4" opacity="0.8"/>
+        <text x="324" y="148" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">CHOL</text>
+        <!-- labels -->
+        <text x="12" y="74" fill="#2d6a2d" font-size="11" font-weight="700">Hydrophilic heads</text>
+        <text x="12" y="140" fill="#5a7a5a" font-size="11" font-weight="700">Hydrophobic tails</text>
+        <text x="12" y="208" fill="#2d6a2d" font-size="11" font-weight="700">Hydrophilic heads</text>
+        <!-- arrows for transport -->
+        <text x="420" y="50" fill="#1a3a1a" font-size="11" font-weight="700">Simple diffusion</text>
+        <line x1="450" y1="55" x2="450" y2="78" stroke="#1a3a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+        <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#1a3a1a"/></marker></defs>
+        <text x="90" y="245" fill="#1a3a1a" font-size="11" text-anchor="middle">Extracellular</text>
+        <text x="90" y="35" fill="#1a3a1a" font-size="11" text-anchor="middle">Intracellular</text>
+      </svg>`,
+      caption:"Phospholipid bilayer with channel protein (orange) and cholesterol (brown). Hydrophilic heads face water; hydrophobic tails face inward."
+    },
+    flashcards:[
+      {q:"What are the 3 tenets of Cell Theory?",a:"1) All organisms are made of cells. 2) The cell is the basic unit of life. 3) All cells arise from pre-existing cells."},
+      {q:"How do prokaryotic and eukaryotic ribosomes differ?",a:"Prokaryotes: 70S ribosomes. Eukaryotes: 80S ribosomes. (Remember: E=80, P=70)"},
+      {q:"What is the role of cholesterol in the cell membrane?",a:"Cholesterol stabilises membrane fluidity — it increases fluidity in cold temperatures and decreases it at high temperatures."},
+      {q:"What is osmosis?",a:"The passive movement of water molecules from a region of lower solute concentration to higher solute concentration across a selectively permeable membrane."},
+      {q:"What happens during the S phase of the cell cycle?",a:"DNA synthesis — the entire genome is replicated, producing two identical copies of each chromosome (sister chromatids)."},
+      {q:"What is the function of cyclins?",a:"Cyclins regulate the cell cycle by controlling checkpoints. They rise and fall in concentration to signal progression through G1→S and G2→M transitions."},
+    ],
+    mnemonics:[
+      {topic:"7 Functions of Life",word:"MRS GREN",expand:"<span>M</span>ovement · <span>R</span>espiration · <span>S</span>ensitivity · <span>G</span>rowth · <span>R</span>eproduction · <span>E</span>xcretion · <span>N</span>utrition"},
+      {topic:"Mitosis Phases in Order",word:"PMAT",expand:"<span>P</span>rophase · <span>M</span>etaphase · <span>A</span>naphase · <span>T</span>elophase"},
+      {topic:"Ribosome sizes",word:"PE 70, EU 80",expand:"<span>P</span>rokaryote = <span>70</span>S · <span>Eu</span>karyote = <span>80</span>S (bigger organism = bigger ribosome)"}
+    ],
+    quiz:[
+      {q:"Which of the following is NOT found in prokaryotic cells?",opts:["Ribosomes","Cell wall","Mitochondria","Plasmids"],ans:2,exp:"Mitochondria are only found in eukaryotic cells. Prokaryotes generate energy differently."},
+      {q:"What type of transport moves molecules from HIGH to LOW concentration without using ATP?",opts:["Active transport","Endocytosis","Passive transport","Primary transport"],ans:2,exp:"Passive transport (e.g. diffusion, osmosis) moves molecules down their concentration gradient — no ATP needed."},
+      {q:"During which phase of mitosis do chromosomes align at the cell equator?",opts:["Prophase","Metaphase","Anaphase","Telophase"],ans:1,exp:"In Metaphase, spindle fibres attach to centromeres and align chromosomes at the metaphase plate (equator)."},
+      {q:"What is the mitotic index of tissue with 15 cells in mitosis out of 100 total?",opts:["0.15","15%","Both A and B","0.85"],ans:2,exp:"Mitotic index = 15/100 = 0.15, which can also be expressed as 15%. Both representations are correct."},
+    ]
+  },
+  {
+    name:"Molecular Biology",icon:"⚗️",color:"#1a5276",sub:"Metabolism, water, carbs, proteins, DNA, enzymes",num:"Topic 2",
+    summary:{
+      title:"Molecular Biology",
+      points:[
+        "Carbon is the backbone of all organic molecules — it can form 4 covalent bonds, enabling enormous molecular diversity.",
+        "Water is a polar molecule forming hydrogen bonds. This gives it high specific heat capacity, high latent heat of vaporisation, cohesion, adhesion, and excellent solvent properties.",
+        "Carbohydrates: monosaccharides (glucose, fructose) → disaccharides (maltose, sucrose) → polysaccharides (starch, glycogen, cellulose) via condensation reactions.",
+        "Proteins have 4 structural levels: primary (amino acid sequence), secondary (α-helices/β-sheets), tertiary (3D folding), quaternary (multiple polypeptides). Enzymes are globular proteins.",
+        "Enzymes are biological catalysts. They lower activation energy, are substrate-specific, and are affected by temperature, pH, and substrate concentration.",
+        "DNA is a double helix with complementary base pairing: A-T (2 H-bonds), C-G (3 H-bonds). The strands are antiparallel.",
+        "DNA Replication is semi-conservative: helicase unwinds, DNA polymerase adds nucleotides 5'→3'. Transcription produces mRNA; Translation at ribosomes produces proteins."
+      ],
+      defs:[
+        {term:"Condensation reaction",def:"Joining of two monomers with the release of a water molecule. Used to build polysaccharides, polypeptides, and triglycerides."},
+        {term:"Induced-fit model",def:"As enzyme and substrate approach, they change shape to fit each other perfectly — explaining enzyme specificity."},
+        {term:"Semi-conservative replication",def:"Each new DNA molecule contains one original strand and one newly synthesised strand."}
+      ],
+      tip:"The Central Dogma: DNA → RNA → Protein. Remember the direction is always 5'→3' for both transcription and translation!"
+    },
+    diagram:{
+      title:"DNA Double Helix Structure",
+      svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="480" height="300" fill="#f8faf8" rx="8"/>
+        <!-- backbone left -->
+        <path d="M80,20 C60,60 100,100 80,140 C60,180 100,220 80,260 C60,290 80,300 80,300" stroke="#2d6a2d" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <!-- backbone right -->
+        <path d="M200,20 C220,60 180,100 200,140 C220,180 180,220 200,260 C220,290 200,300 200,300" stroke="#1a5276" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <!-- base pairs -->
+        <g stroke="#e8a020" stroke-width="3" stroke-dasharray="4,3">
+          <line x1="82" y1="55" x2="198" y2="55"/><line x1="78" y1="100" x2="202" y2="100"/>
+          <line x1="82" y1="145" x2="198" y2="145"/><line x1="78" y1="190" x2="202" y2="190"/>
+          <line x1="82" y1="235" x2="198" y2="235"/>
+        </g>
+        <!-- base labels -->
+        <text x="130" y="52" text-anchor="middle" fill="#7f5209" font-size="11" font-weight="700">A — T</text>
+        <text x="130" y="97" text-anchor="middle" fill="#7f5209" font-size="11" font-weight="700">G ≡ C</text>
+        <text x="130" y="142" text-anchor="middle" fill="#7f5209" font-size="11" font-weight="700">T — A</text>
+        <text x="130" y="187" text-anchor="middle" fill="#7f5209" font-size="11" font-weight="700">C ≡ G</text>
+        <text x="130" y="232" text-anchor="middle" fill="#7f5209" font-size="11" font-weight="700">A — T</text>
+        <!-- direction labels -->
+        <text x="50" y="20" fill="#2d6a2d" font-size="12" font-weight="700">5'</text>
+        <text x="50" y="295" fill="#2d6a2d" font-size="12" font-weight="700">3'</text>
+        <text x="210" y="20" fill="#1a5276" font-size="12" font-weight="700">3'</text>
+        <text x="210" y="295" fill="#1a5276" font-size="12" font-weight="700">5'</text>
+        <!-- legend -->
+        <rect x="280" y="40" width="160" height="200" fill="#fff" rx="8" stroke="#d4e8d4"/>
+        <text x="360" y="62" text-anchor="middle" fill="#1a3a1a" font-size="13" font-weight="700">Key Facts</text>
+        <circle cx="300" cy="90" r="5" fill="#2d6a2d"/>
+        <text x="312" y="94" fill="#2a4a2a" font-size="11">Antiparallel strands</text>
+        <circle cx="300" cy="115" r="5" fill="#1a5276"/>
+        <text x="312" y="119" fill="#2a4a2a" font-size="11">A pairs with T</text>
+        <text x="312" y="134" fill="#5a7a5a" font-size="10">(2 hydrogen bonds)</text>
+        <circle cx="300" cy="155" r="5" fill="#e8a020"/>
+        <text x="312" y="159" fill="#2a4a2a" font-size="11">C pairs with G</text>
+        <text x="312" y="174" fill="#5a7a5a" font-size="10">(3 hydrogen bonds)</text>
+        <circle cx="300" cy="195" r="5" fill="#c47a2d"/>
+        <text x="312" y="199" fill="#2a4a2a" font-size="11">Sugar-phosphate</text>
+        <text x="312" y="214" fill="#2a4a2a" font-size="11">backbone</text>
+      </svg>`,
+      caption:"DNA double helix showing antiparallel strands, complementary base pairing (A-T, C-G), and the sugar-phosphate backbone."
+    },
+    flashcards:[
+      {q:"What are the 4 properties of water that make it essential for life?",a:"1) High specific heat capacity, 2) High latent heat of vaporisation, 3) Cohesion & adhesion, 4) Excellent polar solvent."},
+      {q:"What is the difference between saturated and unsaturated fatty acids?",a:"Saturated: only single C-C bonds (solid at room temp). Unsaturated: one or more C=C double bonds (liquid at room temp, e.g. oils)."},
+      {q:"Name the 4 levels of protein structure.",a:"Primary (amino acid sequence) → Secondary (α-helix/β-sheet, H-bonds) → Tertiary (3D shape, various bonds) → Quaternary (multiple polypeptide chains)."},
+      {q:"What is the lock-and-key vs induced-fit model?",a:"Lock-and-key: rigid complementary shapes. Induced-fit: enzyme changes shape to fit substrate as they interact. Induced-fit is more accurate."},
+      {q:"Which bases pair in DNA? How many H-bonds?",a:"Adenine (A) pairs with Thymine (T) — 2 H-bonds. Cytosine (C) pairs with Guanine (G) — 3 H-bonds."},
+    ],
+    mnemonics:[
+      {topic:"DNA Base Pairing",word:"AT-GC",expand:"<span>A</span>denine-<span>T</span>hymine (2 bonds) · <span>G</span>uanine-<span>C</span>ytosine (3 bonds). Remember: AT the GarC — AT has 2, GC has 3."},
+      {topic:"Protein Structure Levels",word:"PSTQ",expand:"<span>P</span>rimary → <span>S</span>econdary → <span>T</span>ertiary → <span>Q</span>uaternary. Think: 'Please Stop Talking Quietly'"},
+      {topic:"Central Dogma",word:"DNA → RNA → Protein",expand:"<span>D</span>NA is transcribed to <span>R</span>NA, which is translated to <span>P</span>rotein. Information flows one way only!"}
+    ],
+    quiz:[
+      {q:"Which enzyme unwinds the DNA double helix during replication?",opts:["DNA polymerase","Helicase","Ligase","Primase"],ans:1,exp:"Helicase breaks the hydrogen bonds between base pairs to separate the two DNA strands."},
+      {q:"How many hydrogen bonds form between Cytosine and Guanine?",opts:["1","2","3","4"],ans:2,exp:"C-G form 3 hydrogen bonds; A-T form 2. More bonds = stronger connection (C-G pairs are harder to separate)."},
+      {q:"What type of reaction joins amino acids together?",opts:["Hydrolysis","Condensation","Oxidation","Reduction"],ans:1,exp:"A condensation reaction joins amino acids, releasing water and forming a peptide bond between the carboxyl group of one and the amino group of the next."},
+      {q:"What happens to enzyme activity above the optimum temperature?",opts:["It doubles","It remains constant","It decreases as the enzyme denatures","It increases further"],ans:2,exp:"Above the optimum temperature, excessive heat breaks the bonds maintaining the enzyme's tertiary structure — the active site changes shape (denaturation) and the enzyme can no longer function."},
+    ]
+  },
+  {
+    name:"Genetics",icon:"🧬",color:"#6b21a8",sub:"Genes, chromosomes, meiosis, inheritance, GMOs",num:"Topic 3",
+    summary:{
+      title:"Genetics",
+      points:[
+        "A gene is a DNA sequence coding for a heritable trait. Alleles are variants of the same gene differing by a few bases.",
+        "Diploid organisms have two copies of each chromosome (homologous pairs). Haploid cells (gametes) have one copy.",
+        "Meiosis produces 4 genetically unique haploid cells. Crossing over in Prophase I and random orientation in Metaphase I increase genetic variation.",
+        "Dominant alleles are expressed in both homozygous and heterozygous individuals. Recessive alleles are only expressed when homozygous.",
+        "Co-dominant alleles are both expressed (e.g., ABO blood groups — IA and IB are co-dominant, i is recessive).",
+        "Sex-linked genes are on the X chromosome. Males (XY) have only one copy of X-linked genes, making them more susceptible to X-linked disorders.",
+        "Genetic modification involves inserting a gene of interest into a host organism (e.g., insulin gene into E. coli). Tools include restriction enzymes, ligase, and plasmids."
+      ],
+      defs:[
+        {term:"Genotype",def:"The genetic makeup of an organism (combination of alleles, e.g. Bb)."},
+        {term:"Phenotype",def:"The physical expression of the genotype (what you can observe, e.g. brown eyes)."},
+        {term:"Crossing over",def:"Exchange of genetic material between non-sister chromatids of homologous chromosomes during Prophase I of meiosis, generating recombinant chromosomes."}
+      ],
+      tip:"When drawing Punnett grids: Dominant allele = Capital letter. Recessive = lowercase. Always use the SAME letter for both alleles of one gene!"
+    },
+    diagram:{
+      title:"Meiosis Overview",
+      svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="480" height="300" fill="#f8faf8" rx="8"/>
+        <!-- cells -->
+        <ellipse cx="240" cy="45" rx="50" ry="30" fill="#ede9fe" stroke="#6b21a8" stroke-width="2"/>
+        <text x="240" y="40" text-anchor="middle" fill="#4c1d95" font-size="11" font-weight="700">Diploid (2n)</text>
+        <text x="240" y="55" text-anchor="middle" fill="#4c1d95" font-size="10">Parent cell</text>
+        <!-- meiosis I -->
+        <line x1="200" y1="78" x2="130" y2="130" stroke="#6b21a8" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="280" y1="78" x2="350" y2="130" stroke="#6b21a8" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="240" y="98" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="700">MEIOSIS I</text>
+        <text x="240" y="110" text-anchor="middle" fill="#6b21a8" font-size="9">(homologs separate)</text>
+        <ellipse cx="120" cy="155" rx="42" ry="25" fill="#ede9fe" stroke="#6b21a8" stroke-width="1.5"/>
+        <text x="120" y="158" text-anchor="middle" fill="#4c1d95" font-size="10" font-weight="700">Haploid (n)</text>
+        <ellipse cx="360" cy="155" rx="42" ry="25" fill="#ede9fe" stroke="#6b21a8" stroke-width="1.5"/>
+        <text x="360" y="158" text-anchor="middle" fill="#4c1d95" font-size="10" font-weight="700">Haploid (n)</text>
+        <!-- meiosis II -->
+        <line x1="100" y1="182" x2="70" y2="228" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="140" y1="182" x2="170" y2="228" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="340" y1="182" x2="310" y2="228" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="380" y1="182" x2="410" y2="228" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="120" y="205" text-anchor="middle" fill="#9333ea" font-size="9" font-weight="700">MEIOSIS II</text>
+        <text x="360" y="205" text-anchor="middle" fill="#9333ea" font-size="9" font-weight="700">MEIOSIS II</text>
+        <text x="240" y="205" text-anchor="middle" fill="#9333ea" font-size="9">(chromatids separate)</text>
+        <!-- 4 haploid cells -->
+        <ellipse cx="60" cy="252" rx="32" ry="20" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="60" y="255" text-anchor="middle" fill="#6b21a8" font-size="9" font-weight="700">n</text>
+        <ellipse cx="168" cy="252" rx="32" ry="20" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="168" y="255" text-anchor="middle" fill="#6b21a8" font-size="9" font-weight="700">n</text>
+        <ellipse cx="312" cy="252" rx="32" ry="20" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="312" y="255" text-anchor="middle" fill="#6b21a8" font-size="9" font-weight="700">n</text>
+        <ellipse cx="420" cy="252" rx="32" ry="20" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="420" y="255" text-anchor="middle" fill="#6b21a8" font-size="9" font-weight="700">n</text>
+        <text x="240" y="285" text-anchor="middle" fill="#1a3a1a" font-size="11" font-weight="700">4 genetically unique haploid gametes</text>
+      </svg>`,
+      caption:"Meiosis produces 4 haploid cells from one diploid parent cell. Genetic variation arises from crossing over (Prophase I) and random orientation (Metaphase I)."
+    },
+    flashcards:[
+      {q:"What is the difference between mitosis and meiosis?",a:"Mitosis: produces 2 identical diploid cells (for growth/repair). Meiosis: produces 4 unique haploid gametes (for sexual reproduction)."},
+      {q:"A female is XHXh. What does this mean for colour blindness?",a:"She is a CARRIER — she has one normal allele (XH) and one colour-blindness allele (Xh). She is not colour-blind but can pass the allele to her children."},
+      {q:"What is the expected phenotype ratio from a monohybrid cross of two heterozygotes (Bb × Bb)?",a:"3 dominant : 1 recessive (75% show dominant phenotype, 25% show recessive phenotype). Genotype ratio: 1BB : 2Bb : 1bb."},
+      {q:"How are restriction enzymes used in genetic engineering?",a:"Restriction enzymes cut DNA at specific sequences, leaving 'sticky ends'. These allow the gene of interest and the plasmid vector to be joined using DNA ligase."},
+      {q:"What causes Down Syndrome?",a:"Trisomy 21 — non-disjunction during meiosis results in a gamete with an extra chromosome 21. The resulting individual has 47 chromosomes."},
+    ],
+    mnemonics:[
+      {topic:"Meiosis I vs II Memory",word:"I Halves, II Mirrors",expand:"Meiosis <span>I</span>: chromosome number is <span>halved</span> (homologs separate). Meiosis <span>II</span>: like mitosis, chromatids <span>mirror</span> and separate."},
+      {topic:"Genotype vs Phenotype",word:"G = Genes, P = Physical",expand:"<span>G</span>enotype = your <span>G</span>enes (the letters). <span>P</span>henotype = <span>P</span>hysical trait (what you see)."},
+      {topic:"X-linked recessive — who's affected?",word:"Males suffer more",expand:"Males have <span>only one X</span> chromosome — if they inherit the recessive allele, they have no second X to mask it. Females need <span>two copies</span> to be affected."}
+    ],
+    quiz:[
+      {q:"In a cross between blood group AB (IAIB) and blood group O (ii), what are the possible offspring blood groups?",opts:["Only AB","A and B only","A, B, AB, and O","AB and O only"],ans:1,exp:"AB parent contributes either IA or IB. O parent contributes i. So offspring are IAi (blood group A) or IBi (blood group B). No AB or O offspring possible."},
+      {q:"What generates genetic variation during meiosis?",opts:["Mitotic division only","DNA replication","Crossing over and independent assortment","Binary fission"],ans:2,exp:"Two main sources: crossing over (exchange of DNA between homologs in Prophase I) and independent assortment (random orientation of homologs in Metaphase I)."},
+      {q:"A man is colour-blind (XhY). His wife has normal vision (XHXH). What is the probability their son is colour-blind?",opts:["0%","25%","50%","100%"],ans:0,exp:"Mother only passes XH. Father passes Y to sons. Sons are XHY — all have the normal allele from mother. So 0% of sons are colour-blind."},
+    ]
+  },
+  {
+    name:"Ecology",icon:"🌿",color:"#065f46",sub:"Communities, energy flow, carbon cycle, climate",num:"Topic 4",
+    summary:{
+      title:"Ecology",
+      points:[
+        "Key levels of organisation: species → population → community → ecosystem. Ecology studies relationships between organisms and their environment.",
+        "Autotrophs (producers) synthesise organic compounds from inorganic sources using photosynthesis. Heterotrophs (consumers) obtain organic matter by eating other organisms.",
+        "Energy flows through food chains. Only about 10% of energy is transferred between trophic levels — the rest is lost as heat, waste, and movement.",
+        "Carbon enters ecosystems via photosynthesis (CO₂ → organic compounds) and exits via respiration, decomposition, combustion, and volcanic activity.",
+        "The greenhouse effect: short-wavelength solar radiation reaches Earth's surface; Earth re-emits long-wavelength (infrared) radiation; greenhouse gases (CO₂, CH₄, H₂O vapour) absorb and re-emit this, warming the atmosphere.",
+        "The enhanced greenhouse effect is caused by human activities (fossil fuel combustion, deforestation, agriculture) increasing CO₂ and CH₄, raising global temperatures."
+      ],
+      defs:[
+        {term:"Saprotrophs",def:"Decomposers that externally digest dead organic matter by secreting enzymes and absorbing the products (e.g. fungi, bacteria)."},
+        {term:"Detritivores",def:"Decomposers that ingest dead organic matter internally (e.g. earthworms, woodlice)."},
+        {term:"Pyramid of energy",def:"Diagram showing energy flow between trophic levels; each level is ~10× smaller than the one below. Units: kJ/m²/year."}
+      ],
+      tip:"Food chain direction: arrows show the direction of ENERGY FLOW (from what is eaten → to what eats it). Not 'what eats what'!"
+    },
+    diagram:{
+      title:"Carbon Cycle",
+      svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="480" height="300" fill="#f8faf8" rx="8"/>
+        <!-- atmosphere -->
+        <rect x="160" y="15" width="160" height="40" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+        <text x="240" y="32" text-anchor="middle" fill="#0c4a6e" font-size="11" font-weight="700">CO₂ in Atmosphere</text>
+        <text x="240" y="47" text-anchor="middle" fill="#075985" font-size="9">greenhouse gas</text>
+        <!-- plants -->
+        <rect x="30" y="120" width="110" height="40" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="85" y="138" text-anchor="middle" fill="#14532d" font-size="11" font-weight="700">🌿 Plants</text>
+        <text x="85" y="153" text-anchor="middle" fill="#166534" font-size="9">Producers</text>
+        <!-- animals -->
+        <rect x="185" y="120" width="110" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+        <text x="240" y="138" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">🐛 Animals</text>
+        <text x="240" y="153" text-anchor="middle" fill="#92400e" font-size="9">Consumers</text>
+        <!-- decomposers -->
+        <rect x="340" y="120" width="110" height="40" rx="8" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>
+        <text x="395" y="138" text-anchor="middle" fill="#831843" font-size="11" font-weight="700">🍄 Decomposers</text>
+        <text x="395" y="153" text-anchor="middle" fill="#9d174d" font-size="9">Saprotrophs</text>
+        <!-- fossil fuels -->
+        <rect x="160" y="230" width="160" height="40" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+        <text x="240" y="248" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">⛽ Fossil Fuels</text>
+        <text x="240" y="263" text-anchor="middle" fill="#92400e" font-size="9">coal, oil, gas</text>
+        <!-- arrows -->
+        <defs><marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#374151"/></marker></defs>
+        <!-- photosynthesis -->
+        <line x1="120" y1="38" x2="173" y2="38" stroke="#16a34a" stroke-width="2" marker-end="url(#a2)"/>
+        <text x="147" y="33" text-anchor="middle" fill="#16a34a" font-size="8">photosynthesis</text>
+        <!-- respiration plant -->
+        <line x1="85" y1="120" x2="200" y2="58" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+        <text x="115" y="82" fill="#ef4444" font-size="8">respiration</text>
+        <!-- feeding -->
+        <line x1="142" y1="140" x2="183" y2="140" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="163" y="135" text-anchor="middle" fill="#374151" font-size="8">feeding</text>
+        <!-- death -->
+        <line x1="297" y1="140" x2="338" y2="140" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="318" y="135" text-anchor="middle" fill="#374151" font-size="8">death</text>
+        <!-- combustion -->
+        <line x1="250" y1="228" x2="285" y2="60" stroke="#f97316" stroke-width="2" marker-end="url(#a2)"/>
+        <text x="290" y="145" fill="#ea580c" font-size="8">combustion</text>
+        <!-- fossilisation -->
+        <line x1="395" y1="162" x2="320" y2="228" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+        <text x="370" y="210" fill="#6d28d9" font-size="8">fossilisation</text>
+        <!-- animal respiration -->
+        <line x1="240" y1="120" x2="240" y2="60" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#a2)"/>
+      </svg>`,
+      caption:"Carbon cycle showing how carbon moves between the atmosphere, producers, consumers, decomposers, and fossil fuels through photosynthesis, respiration, feeding, decomposition, and combustion."
+    },
+    flashcards:[
+      {q:"What is the difference between saprotrophs and detritivores?",a:"Saprotrophs (fungi/bacteria) EXTERNALLY digest dead matter by secreting enzymes, then absorbing products. Detritivores (earthworms) INTERNALLY digest dead matter by eating it."},
+      {q:"Why can food chains rarely have more than 5 trophic levels?",a:"Only ~10% of energy is transferred between levels. By the 5th level, so little energy remains that it cannot sustain a viable population of organisms."},
+      {q:"How does burning fossil fuels affect the carbon cycle?",a:"It releases CO₂ that was locked underground for millions of years back into the atmosphere rapidly, increasing greenhouse gas concentrations and enhancing the greenhouse effect."},
+      {q:"What is the difference between the greenhouse effect and the enhanced greenhouse effect?",a:"The greenhouse effect is natural and essential for life. The ENHANCED greenhouse effect is caused by human-produced increases in greenhouse gases, causing global warming."},
+    ],
+    mnemonics:[
+      {topic:"Trophic Levels in Order",word:"PPHCS (Peter Picked Huge Carrots Slowly)",expand:"<span>P</span>roducers → <span>P</span>rimary consumers → <span>H</span>erbivores (secondary) → <span>C</span>arnivores (tertiary) → <span>S</span>uperpredators (top)"},
+      {topic:"Greenhouse Gases",word:"MOWN CO",expand:"<span>M</span>ethane · <span>O</span>zone · <span>W</span>ater vapour · <span>N</span>itrous oxide · <span>CO</span>₂. Note: ozone is a greenhouse gas but ozone depletion does NOT increase the greenhouse effect!"}
+    ],
+    quiz:[
+      {q:"A food chain has 87,000 kJ at the producer level. How much energy reaches tertiary consumers?",opts:["87 kJ","870 kJ","8,700 kJ","8.7 kJ"],ans:1,exp:"Each trophic level transfers 10%. Producer→1° consumer: 8,700 kJ. 1°→2° consumer: 870 kJ. 2°→3° (tertiary) consumer: 87 kJ. So 87 kJ — but 870 kJ reaches secondary consumers."},
+      {q:"Which human activity most directly increases atmospheric CH₄?",opts:["Burning coal","Rice paddies and cattle farming","Driving cars","Industrial cooling systems"],ans:1,exp:"Rice paddies produce methane from anaerobic decomposition. Cattle produce methane from enteric fermentation. Both are major sources of agricultural methane."},
+      {q:"What happens to most of the energy at each trophic level?",opts:["It is stored as biomass","It is transferred to the next level","It is lost as heat, waste, and movement","It is converted to CO₂ only"],ans:2,exp:"~90% of energy is lost at each trophic level through heat (respiration), incomplete digestion (faeces), movement, and thermoregulation."},
+    ]
+  },
+  {
+    name:"Evolution & Biodiversity",icon:"🦕",color:"#92400e",sub:"Natural selection, classification, cladistics",num:"Topic 5",
+    summary:{
+      title:"Evolution & Biodiversity",
+      points:[
+        "Evolution is the accumulation of changes in heritable characteristics of a population over time, driven by natural selection.",
+        "Natural selection: variation exists in a population → individuals with favourable traits are more likely to survive and reproduce → favourable alleles increase in frequency over generations.",
+        "Evidence for evolution: fossil records, comparative anatomy (pentadactyl limb), selective breeding, melanism in peppered moths, antibiotic resistance in bacteria.",
+        "Three types of natural selection: directional (favours one extreme), stabilising (favours the middle), disruptive (favours both extremes, eliminates intermediate).",
+        "Speciation occurs when populations become reproductively isolated (temporal, behavioural, or geographical isolation) and accumulate enough genetic differences to become separate species.",
+        "Classification system (taxonomic hierarchy): Domain → Kingdom → Phylum → Class → Order → Family → Genus → Species. Binomial nomenclature: Genus species (e.g., Homo sapiens).",
+        "Cladistics uses DNA/amino acid sequence data to determine evolutionary relationships and construct cladograms."
+      ],
+      defs:[
+        {term:"Homologous structures",def:"Structures with the same evolutionary origin but different functions (e.g. pentadactyl limb in humans, bats, whales). Evidence for divergent evolution."},
+        {term:"Analogous structures",def:"Structures with similar function but different evolutionary origins (e.g. wings of birds and insects). Evidence for convergent evolution."},
+        {term:"Polyploidy",def:"Having more than two complete sets of chromosomes. Can lead to rapid speciation as polyploid individuals cannot breed with the original population."}
+      ],
+      tip:"Cladograms: the more recently two species share a branch point, the MORE closely related they are. A branch point = a common ancestor."
+    },
+    diagram:{
+      title:"Types of Natural Selection",
+      svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="480" height="300" fill="#f8faf8" rx="8"/>
+        <!-- Directional -->
+        <text x="80" y="22" text-anchor="middle" fill="#92400e" font-size="12" font-weight="700">Directional</text>
+        <path d="M20,80 Q80,30 140,90" stroke="#d4a370" stroke-width="2" fill="#fef3c7" opacity="0.7"/>
+        <path d="M20,80 Q80,30 140,90" fill="#fef3c7" opacity="0.5"/>
+        <text x="80" y="100" text-anchor="middle" fill="#78350f" font-size="9">favours one extreme</text>
+        <line x1="100" y1="40" x2="130" y2="40" stroke="#92400e" stroke-width="2" marker-end="url(#a3)"/>
+        <defs><marker id="a3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#92400e"/></marker></defs>
+        <!-- Stabilising -->
+        <text x="240" y="22" text-anchor="middle" fill="#065f46" font-size="12" font-weight="700">Stabilising</text>
+        <path d="M160,90 Q240,20 320,90" stroke="#4ade80" stroke-width="2" fill="#dcfce7" opacity="0.7"/>
+        <text x="240" y="105" text-anchor="middle" fill="#14532d" font-size="9">favours the middle</text>
+        <line x1="200" y1="40" x2="220" y2="30" stroke="#065f46" stroke-width="2" marker-end="url(#a4)"/>
+        <line x1="280" y1="40" x2="260" y2="30" stroke="#065f46" stroke-width="2" marker-end="url(#a4)"/>
+        <defs><marker id="a4" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#065f46"/></marker></defs>
+        <!-- Disruptive -->
+        <text x="415" y="22" text-anchor="middle" fill="#1a5276" font-size="12" font-weight="700">Disruptive</text>
+        <path d="M345,60 Q380,90 415,50 Q450,90 480,60" stroke="#60a5fa" stroke-width="2" fill="#dbeafe" opacity="0.7"/>
+        <text x="415" y="110" text-anchor="middle" fill="#1e3a5f" font-size="9">favours both extremes</text>
+        <!-- divider -->
+        <line x1="0" y1="125" x2="480" y2="125" stroke="#e5e7eb" stroke-width="1"/>
+        <!-- Examples -->
+        <text x="240" y="148" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">Examples</text>
+        <rect x="15" y="158" width="135" height="60" rx="6" fill="#fffbeb" stroke="#d97706" stroke-width="1"/>
+        <text x="83" y="175" text-anchor="middle" fill="#78350f" font-size="10" font-weight="700">Dark moths</text>
+        <text x="83" y="190" text-anchor="middle" fill="#92400e" font-size="9">Industrial melanism:</text>
+        <text x="83" y="204" text-anchor="middle" fill="#92400e" font-size="9">dark moths favoured</text>
+        <text x="83" y="218" text-anchor="middle" fill="#92400e" font-size="9">on darkened trees</text>
+        <rect x="173" y="158" width="135" height="60" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1"/>
+        <text x="241" y="175" text-anchor="middle" fill="#14532d" font-size="10" font-weight="700">Birth weight</text>
+        <text x="241" y="190" text-anchor="middle" fill="#166534" font-size="9">Very low and very high</text>
+        <text x="241" y="204" text-anchor="middle" fill="#166534" font-size="9">birth weight have</text>
+        <text x="241" y="218" text-anchor="middle" fill="#166534" font-size="9">higher mortality</text>
+        <rect x="330" y="158" width="135" height="60" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+        <text x="398" y="175" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Beak size in finches</text>
+        <text x="398" y="190" text-anchor="middle" fill="#1e40af" font-size="9">During drought: large</text>
+        <text x="398" y="204" text-anchor="middle" fill="#1e40af" font-size="9">beaks favoured. During</text>
+        <text x="398" y="218" text-anchor="middle" fill="#1e40af" font-size="9">rain: small beaks favoured</text>
+        <!-- Taxonomic hierarchy -->
+        <text x="240" y="253" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">Taxonomic Hierarchy (broadest → narrowest)</text>
+        <text x="240" y="272" text-anchor="middle" fill="#2d6a2d" font-size="10">Domain → Kingdom → Phylum → Class → Order → Family → Genus → Species</text>
+        <text x="240" y="290" text-anchor="middle" fill="#5a7a5a" font-size="9" font-style="italic">Dear King Philip Came Over For Good Soup</text>
+      </svg>`,
+      caption:"Three types of natural selection, examples, and the taxonomic classification hierarchy."
+    },
+    flashcards:[
+      {q:"What is natural selection?",a:"Individuals with heritable traits better suited to their environment are more likely to survive and reproduce, passing those traits to offspring. Over generations, the population changes."},
+      {q:"What is the difference between homologous and analogous structures?",a:"Homologous: same evolutionary origin, different functions (e.g., human arm and whale flipper = pentadactyl limb). Analogous: different origin, similar function (e.g., bird wing and insect wing)."},
+      {q:"Name the binomial name for humans and explain the format.",a:"Homo sapiens. Genus name (Homo) is capitalised; species name (sapiens) is lowercase. Written in italics when typed, underlined when handwritten."},
+      {q:"How does antibiotic resistance develop in bacteria?",a:"Random mutations give some bacteria resistance. When antibiotics are used, non-resistant bacteria die but resistant ones survive and reproduce, passing the resistance gene. The resistant strain becomes dominant."},
+    ],
+    mnemonics:[
+      {topic:"Taxonomic Hierarchy",word:"Dear King Philip Came Over For Good Soup",expand:"<span>D</span>omain · <span>K</span>ingdom · <span>P</span>hylum · <span>C</span>lass · <span>O</span>rder · <span>F</span>amily · <span>G</span>enus · <span>S</span>pecies"},
+      {topic:"Types of Natural Selection",word:"DSD (Did Sam Disrupt?)",expand:"<span>D</span>irectional · <span>S</span>tabilising · <span>D</span>isruptive. Directional = one extreme wins. Stabilising = middle wins. Disruptive = both extremes win."}
+    ],
+    quiz:[
+      {q:"The pentadactyl limb is an example of which type of evolution?",opts:["Convergent evolution","Divergent evolution (adaptive radiation)","Artificial selection","Lamarckian evolution"],ans:1,exp:"The pentadactyl limb (5-digit structure shared by mammals, birds, reptiles, amphibians) arose from a common ancestor and diversified through adaptive radiation — this is divergent evolution."},
+      {q:"Which of the following is NOT a valid mechanism of reproductive isolation?",opts:["Geographical isolation","Temporal isolation","Nutritional isolation","Behavioural isolation"],ans:2,exp:"Nutritional isolation is not a recognised mechanism. The three main types are geographical (physical separation), temporal (different breeding seasons), and behavioural (different mating signals/rituals)."},
+    ]
+  },
+  {
+    name:"Human Physiology",icon:"🫀",color:"#be185d",sub:"Digestion, blood, immunity, nerves, hormones",num:"Topic 6",
+    summary:{
+      title:"Human Physiology",
+      points:[
+        "Digestion breaks large insoluble molecules into small soluble ones for absorption. Key enzymes: amylase (starch→maltose), protease/pepsin (proteins→peptides), lipase (triglycerides→fatty acids+glycerol).",
+        "Villi in the small intestine increase surface area for absorption. They have microvilli, a lacteal, capillaries, and are one cell thick.",
+        "The heart has 4 chambers: right atrium → right ventricle → pulmonary circulation (lungs) → left atrium → left ventricle → systemic circulation (body). SA node is the pacemaker.",
+        "Blood clotting: damaged tissue releases clotting factors → prothrombin → thrombin → fibrinogen → fibrin mesh → clot.",
+        "Specific immunity: antigens → B-lymphocytes activated → plasma cells release antibodies → memory cells formed for future immunity.",
+        "Gas exchange occurs at alveoli (thin walls, large surface area, moist, close to capillaries). Inhalation: diaphragm contracts and flattens, external intercostals contract.",
+        "Neurons: resting potential −70mV (Na⁺/K⁺ pump). Action potential: depolarisation (Na⁺ in) → repolarisation (K⁺ out) → refractory period."
+      ],
+      defs:[
+        {term:"Cardiac cycle",def:"The sequence of events in one heartbeat: atrial contraction → ventricular contraction (systole) → relaxation (diastole). Valves prevent backflow."},
+        {term:"Action potential",def:"An all-or-none electrical impulse along a neuron. Threshold = −55mV. Depolarisation reaches +40mV then repolarises."},
+        {term:"Negative feedback",def:"A mechanism where a change triggers a response that reverses the change, maintaining homeostasis (e.g., blood glucose regulation by insulin/glucagon)."}
+      ],
+      tip:"Blood vessel comparison: Arteries = thick walls, no valves, high pressure, carry AWAY from heart. Veins = thin walls, valves, low pressure, carry TO the heart. Capillaries = one cell thick, site of exchange."
+    },
+    diagram:{
+      title:"Heart Structure & Blood Flow",
+      svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif">
+        <rect width="480" height="300" fill="#f8faf8" rx="8"/>
+        <!-- heart outline -->
+        <path d="M180,50 Q130,30 90,70 Q50,110 90,160 Q130,210 240,270 Q350,210 390,160 Q430,110 390,70 Q350,30 300,50 Q270,35 240,50 Q210,35 180,50Z" fill="#fce7f3" stroke="#be185d" stroke-width="2.5" opacity="0.8"/>
+        <!-- chambers -->
+        <rect x="120" y="80" width="95" height="100" rx="8" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5" opacity="0.8"/>
+        <text x="168" y="115" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Right</text>
+        <text x="168" y="128" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Atrium</text>
+        <rect x="120" y="185" width="95" height="75" rx="8" fill="#93c5fd" stroke="#1d4ed8" stroke-width="1.5" opacity="0.8"/>
+        <text x="168" y="220" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Right</text>
+        <text x="168" y="233" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Ventricle</text>
+        <rect x="265" y="80" width="95" height="100" rx="8" fill="#fecaca" stroke="#be185d" stroke-width="1.5" opacity="0.8"/>
+        <text x="313" y="115" text-anchor="middle" fill="#831843" font-size="10" font-weight="700">Left</text>
+        <text x="313" y="128" text-anchor="middle" fill="#831843" font-size="10" font-weight="700">Atrium</text>
+        <rect x="265" y="185" width="95" height="75" rx="8" fill="#f87171" stroke="#be185d" stroke-width="2" opacity="0.8"/>
+        <text x="313" y="220" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Left</text>
+        <text x="313" y="233" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Ventricle</text>
+        <!-- valves -->
+        <line x1="215" y1="130" x2="265" y2="130" stroke="#374151" stroke-width="2"/>
+        <text x="240" y="145" text-anchor="middle" fill="#374151" font-size="9">SEPTUM</text>
+        <!-- labels outside -->
+        <text x="70" y="65" fill="#1d4ed8" font-size="9" font-weight="700">Vena cava</text>
+        <text x="70" y="78" fill="#1d4ed8" font-size="9">(deoxygenated)</text>
+        <line x1="118" y1="100" x2="95" y2="90" stroke="#1d4ed8" stroke-width="1.5"/>
+        <text x="350" y="45" fill="#be185d" font-size="9" font-weight="700">Aorta</text>
+        <text x="350" y="58" fill="#be185d" font-size="9">(oxygenated)</text>
+        <line x1="340" y1="90" x2="363" y2="60" stroke="#be185d" stroke-width="1.5"/>
+        <text x="60" y="240" fill="#2563eb" font-size="9">To lungs</text>
+        <text x="60" y="252" fill="#2563eb" font-size="9">(pulmonary artery)</text>
+        <line x1="120" y1="222" x2="90" y2="238" stroke="#2563eb" stroke-width="1.5"/>
+        <!-- flow numbers -->
+        <text x="240" y="290" text-anchor="middle" fill="#5a7a5a" font-size="9">Blood flows: body → RA → RV → lungs → LA → LV → body</text>
+      </svg>`,
+      caption:"Cross-section of the human heart. Right side handles pulmonary (to lungs) circulation; left side handles systemic (to body) circulation. Left ventricle has thicker walls."
+    },
+    flashcards:[
+      {q:"What are the optimum pH values for pepsin and amylase?",a:"Pepsin (stomach protease): pH 2–3 (acidic). Amylase (salivary/pancreatic): pH 7 (neutral). Lipase (pancreatic): pH 7."},
+      {q:"What is the role of memory cells in immunity?",a:"After a primary immune response, some B and T cells become memory cells. On secondary exposure to the same antigen, they respond much faster and more powerfully, producing large amounts of antibodies quickly."},
+      {q:"How does the SA node control heart rate?",a:"The sinoatrial (SA) node in the right atrium generates electrical impulses that spread through the atria causing contraction, then through the bundle of His to the ventricles. It can be sped up by adrenalin and sympathetic nerves, slowed by parasympathetic nerves."},
+      {q:"What happens during depolarisation of a neuron?",a:"Na⁺ voltage-gated channels open and Na⁺ floods INTO the neuron (down its concentration gradient). The membrane potential rises from −70mV toward +40mV. This is the action potential."},
+      {q:"What is the role of glucagon?",a:"Glucagon is released by alpha cells of the pancreas when blood glucose is LOW. It stimulates the liver to break down glycogen (glycogenolysis) into glucose, raising blood glucose back to normal."},
+    ],
+    mnemonics:[
+      {topic:"Blood vessel comparison",word:"AVeC",expand:"<span>A</span>rteries: Away from heart, thick walls, no valves. <span>V</span>eins: Valves present, to heart, thin walls. <span>C</span>apillaries: one Cell thick, exchange site."},
+      {topic:"Digestive enzymes",word:"PAL (Protein-Acid-Lipase)",expand:"<span>P</span>epsin breaks <span>P</span>roteins in stomach (acid, pH 2–3). <span>A</span>mylase breaks starch. <span>L</span>ipase breaks lipids (both pH 7, in small intestine/pancreas)."},
+      {topic:"Inhalation vs Exhalation",word:"In = LAVA Out = HADA",expand:"<span>In</span>halation: diaphragm contracts, external intercostals contract → volume <span>↑</span>, pressure <span>↓</span>. <span>Ex</span>halation: relax → volume <span>↓</span>, pressure <span>↑</span>."}
+    ],
+    quiz:[
+      {q:"Which enzyme converts fibrinogen to fibrin during blood clotting?",opts:["Prothrombin","Thrombin","Fibrinase","Clotting factor"],ans:1,exp:"Thrombin (the active form of prothrombin) catalyses the conversion of soluble fibrinogen into insoluble fibrin, which forms the clot mesh."},
+      {q:"Why does the left ventricle have thicker walls than the right?",opts:["It pumps blood to the lungs only","It pumps blood to the entire body (systemic circulation) at higher pressure","It has more valves","It receives blood from the aorta"],ans:1,exp:"The left ventricle must generate enough pressure to push oxygenated blood through the entire body (systemic circulation), which is a much longer distance than the pulmonary circuit."},
+      {q:"What is the resting membrane potential of a neuron?",opts:["+40 mV","−55 mV","−70 mV","0 mV"],ans:2,exp:"The resting potential is −70mV, maintained by the Na⁺/K⁺ pump (3 Na⁺ out, 2 K⁺ in per ATP). Threshold for action potential is −55mV."},
+    ]
+  },
+  {name:"Nucleic Acids",icon:"🔗",color:"#0f766e",sub:"DNA structure, replication, transcription, translation",num:"Topic 7 (HL)",summary:{title:"Nucleic Acids (HL)",points:["Nucleosomes: DNA wraps twice around a core of 8 histone proteins. Histone H1 holds DNA to the core. Condensed chromatin (heterochromatin) is not transcribed; decondensed (euchromatin) is accessible.","DNA replication: Helicase unwinds. Leading strand: continuous (5'→3'). Lagging strand: Okazaki fragments (5'→3' per fragment) joined by DNA ligase. DNA polymerase adds to 3' end only.","Transcription: RNA polymerase binds to promoter → elongates mRNA 5'→3' → terminates. In eukaryotes, introns are spliced out; exons are joined. The 'antisense' strand is the template.","Translation: Ribosome reads mRNA 5'→3'. tRNA anticodons match mRNA codons. Start codon: AUG. Stop codons: UAG, UAA, UGA. The polypeptide grows at the A site.","Gene expression regulation: transcription factors (activators/repressors) bind to promoter regions. Epigenetic modifications: DNA methylation (silences genes), histone acetylation (promotes transcription), microRNAs (degrade mRNA)."],defs:[{term:"Okazaki fragments",def:"Short DNA sequences synthesised on the lagging strand during replication. DNA ligase joins them together."},{term:"Intron/Exon",def:"Introns are non-coding sequences spliced out from pre-mRNA. Exons are coding sequences that remain after splicing."}],tip:"Remember: DNA polymerase can only add nucleotides to the 3' end, and only using an existing strand as template. This is why the lagging strand needs primers and produces Okazaki fragments!"},diagram:{title:"Transcription & Translation Overview",svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif"><rect width="480" height="300" fill="#f8faf8" rx="8"/><rect x="20" y="20" width="440" height="60" rx="8" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.5"/><text x="240" y="42" text-anchor="middle" fill="#134e4a" font-size="12" font-weight="700">NUCLEUS</text><text x="240" y="60" text-anchor="middle" fill="#0f766e" font-size="10">DNA (antisense strand) → RNA polymerase → pre-mRNA → splicing (remove introns) → mRNA</text><text x="240" y="75" text-anchor="middle" fill="#065f46" font-size="9" font-style="italic">TRANSCRIPTION (5'→3')</text><rect x="20" y="110" width="440" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/><text x="240" y="132" text-anchor="middle" fill="#14532d" font-size="12" font-weight="700">CYTOPLASM</text><text x="240" y="150" text-anchor="middle" fill="#15803d" font-size="10">mRNA + ribosome → tRNA brings amino acids → peptide bonds form → polypeptide chain</text><text x="240" y="165" text-anchor="middle" fill="#166534" font-size="9" font-style="italic">TRANSLATION (AUG start → UAA/UAG/UGA stop)</text><line x1="240" y1="82" x2="240" y2="108" stroke="#374151" stroke-width="2" marker-end="url(#a5)"/><defs><marker id="a5" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#374151"/></marker></defs><text x="260" y="98" fill="#374151" font-size="9">mRNA exits through nuclear pore</text><rect x="20" y="200" width="440" height="80" rx="8" fill="#fff7ed" stroke="#d97706" stroke-width="1.5"/><text x="240" y="222" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">Genetic Code</text><text x="240" y="242" text-anchor="middle" fill="#92400e" font-size="10">AUG = Start (Met) | UAA, UAG, UGA = Stop</text><text x="240" y="260" text-anchor="middle" fill="#92400e" font-size="10">Each codon = 3 bases → 1 amino acid | Code is universal &amp; degenerate</text><text x="240" y="275" text-anchor="middle" fill="#b45309" font-size="9" font-style="italic">Degenerate = multiple codons can code for the same amino acid</text></svg>`,caption:"Overview of transcription in the nucleus and translation in the cytoplasm. The genetic code is universal (same in all organisms) and degenerate (multiple codons per amino acid)."},flashcards:[{q:"What is the difference between the leading and lagging strand in DNA replication?",a:"Leading strand: synthesised continuously in the 5'→3' direction toward the replication fork. Lagging strand: synthesised in short Okazaki fragments (5'→3' away from the fork), later joined by DNA ligase."},{q:"What is RNA splicing?",a:"After transcription in eukaryotes, non-coding introns are removed from pre-mRNA and the coding exons are joined together to produce mature mRNA. This allows one gene to produce multiple proteins (alternative splicing)."},{q:"What is the role of tRNA in translation?",a:"tRNA carries a specific amino acid at its 3' end and has an anticodon that is complementary to the mRNA codon. It brings the correct amino acid to the ribosome during translation."}],mnemonics:[{topic:"Introns vs Exons",word:"INtrons are IN the trash; EXons are EXpressed",expand:"<span>IN</span>trons = spliced <span>IN</span>to the trash (removed). <span>EX</span>ons = <span>EX</span>pressed (kept and translated)."},{topic:"Stop codons",word:"UAA UAG UGA = U Are A Ugly Germ Away",expand:"<span>UAA</span> (<span>U A</span>re <span>A</span>wesome) · <span>UAG</span> (<span>U A</span>re <span>G</span>one) · <span>UGA</span> (<span>U G</span>o <span>A</span>way)"}],quiz:[{q:"Which enzyme joins Okazaki fragments on the lagging strand?",opts:["Helicase","DNA polymerase","DNA ligase","Primase"],ans:2,exp:"DNA ligase seals the nicks between Okazaki fragments, joining them into a continuous strand."},{q:"Epigenetic modification by DNA methylation generally results in:",opts:["Gene activation","Gene silencing","Increased transcription","mRNA degradation"],ans:1,exp:"Methylation of cytosine bases in DNA (especially at CpG sites) is associated with gene silencing — it prevents transcription factors from accessing the promoter."}]},
+  {name:"Metabolism, Respiration & Photosynthesis",icon:"⚡",color:"#b45309",sub:"Krebs cycle, electron transport chain, Calvin cycle",num:"Topic 8 (HL)",summary:{title:"Metabolism, Respiration & Photosynthesis (HL)",points:["Glycolysis (cytoplasm): glucose → 2 pyruvate + 2 ATP net + 2 NADH. Occurs in aerobic and anaerobic conditions.","Link reaction (mitochondrial matrix): pyruvate → acetyl-CoA + CO₂ + NADH. Per glucose: 2 CO₂, 2 NADH, 2 acetyl-CoA.","Krebs cycle (matrix): acetyl-CoA + oxaloacetate → 6C intermediate → CO₂ + NADH + FADH₂ + ATP. Per glucose: 4 CO₂, 6 NADH, 2 FADH₂, 2 ATP.","Electron transport chain (inner mitochondrial membrane): NADH and FADH₂ donate electrons → H⁺ pumped into intermembrane space → chemiosmosis through ATP synthase → 34 ATP. O₂ is the final electron acceptor → H₂O.","Light-dependent reactions (thylakoid): photolysis of water → O₂ + H⁺ + electrons. Electrons excited in PSII → electron transport chain → ATP (photophosphorylation). PSI → NADPH.","Calvin cycle (stroma): 3CO₂ + 3RuBP → 6 GP → 6 TP (using NADPH and ATP) → 1 TP exits (glucose) + 3 RuBP regenerated."],defs:[{term:"Chemiosmosis",def:"Movement of H⁺ ions across the inner mitochondrial (or thylakoid) membrane through ATP synthase, using the electrochemical gradient to produce ATP."},{term:"Rubisco",def:"Enzyme that catalyses carbon fixation in the Calvin cycle: CO₂ + RuBP → 2 molecules of glycerate-3-phosphate (GP)."}],tip:"Remember the products: Glycolysis = 2 ATP. Link reaction = 0 ATP (just NADH + CO₂). Krebs = 2 ATP. ETC = ~34 ATP. Total aerobic = ~36-38 ATP per glucose."},diagram:{title:"Cellular Respiration Overview",svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif"><rect width="480" height="300" fill="#f8faf8" rx="8"/><rect x="10" y="15" width="460" height="55" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/><text x="240" y="35" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">GLYCOLYSIS (Cytoplasm)</text><text x="240" y="52" text-anchor="middle" fill="#92400e" font-size="10">Glucose → 2 Pyruvate + 2 ATP (net) + 2 NADH</text><rect x="10" y="90" width="460" height="50" rx="6" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/><text x="240" y="110" text-anchor="middle" fill="#831843" font-size="11" font-weight="700">LINK REACTION (Mitochondrial Matrix)</text><text x="240" y="128" text-anchor="middle" fill="#9d174d" font-size="10">Pyruvate → Acetyl-CoA + CO₂ + NADH (×2 per glucose)</text><rect x="10" y="160" width="220" height="70" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/><text x="120" y="182" text-anchor="middle" fill="#14532d" font-size="11" font-weight="700">KREBS CYCLE (Matrix)</text><text x="120" y="198" text-anchor="middle" fill="#166534" font-size="10">Acetyl-CoA → 4CO₂</text><text x="120" y="213" text-anchor="middle" fill="#166534" font-size="10">6NADH + 2FADH₂ + 2ATP</text><rect x="250" y="160" width="220" height="70" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/><text x="360" y="182" text-anchor="middle" fill="#1e3a5f" font-size="11" font-weight="700">ETC + CHEMIOSMOSIS</text><text x="360" y="198" text-anchor="middle" fill="#1e40af" font-size="10">(Inner membrane)</text><text x="360" y="213" text-anchor="middle" fill="#1e40af" font-size="10">~34 ATP + H₂O (O₂ as acceptor)</text><defs><marker id="a6" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#374151"/></marker></defs><line x1="240" y1="72" x2="240" y2="88" stroke="#374151" stroke-width="2" marker-end="url(#a6)"/><line x1="240" y1="142" x2="120" y2="158" stroke="#374151" stroke-width="2" marker-end="url(#a6)"/><line x1="300" y1="142" x2="360" y2="158" stroke="#374151" stroke-width="2" marker-end="url(#a6)"/><text x="172" y="155" fill="#374151" font-size="9">NADH/FADH₂</text><text x="310" y="155" fill="#374151" font-size="9">NADH/FADH₂</text><rect x="10" y="252" width="460" height="38" rx="6" fill="#f0f9ff" stroke="#0284c7" stroke-width="1"/><text x="240" y="267" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="700">TOTAL AEROBIC YIELD: ~36–38 ATP per glucose molecule</text><text x="240" y="282" text-anchor="middle" fill="#075985" font-size="9">Anaerobic (no O₂): only 2 ATP from glycolysis (fermentation)</text></svg>`,caption:"Aerobic cellular respiration produces 36–38 ATP per glucose across glycolysis, link reaction, Krebs cycle, and the electron transport chain."},flashcards:[{q:"What are the net products of glycolysis?",a:"Per glucose: 2 pyruvate, 2 ATP (net — 4 produced, 2 used), 2 NADH. Occurs in the cytoplasm. Does not require oxygen."},{q:"What is the role of NAD⁺ in cellular respiration?",a:"NAD⁺ is an electron carrier — it accepts hydrogen atoms (electrons + protons) to become NADH. NADH then donates electrons to the ETC, powering ATP synthesis via chemiosmosis."},{q:"What are the products of the light-dependent reactions?",a:"ATP, NADPH, and O₂ (released as a waste product from photolysis of water). These products power the Calvin cycle."}],mnemonics:[{topic:"Products of Krebs Cycle",word:"CO₂ FANS ATP",expand:"<span>CO₂</span> (carbon dioxide released) · <span>F</span>ADH₂ · <span>A</span>TP (2) · <span>N</span>ADH · <span>S</span>tarts again with oxaloacetate"},{topic:"Calvin Cycle steps",word:"FRR: Fix, Reduce, Regenerate",expand:"<span>F</span>ix CO₂ (with RuBP, catalysed by Rubisco) → <span>R</span>educe GP to TP (using ATP + NADPH) → <span>R</span>egenerate RuBP (using ATP)"}],quiz:[{q:"Where does the Krebs cycle take place?",opts:["Cytoplasm","Thylakoid membrane","Mitochondrial inner membrane","Mitochondrial matrix"],ans:3,exp:"The Krebs cycle (and link reaction) occur in the mitochondrial matrix — the fluid-filled interior of the mitochondrion."},{q:"What is the final electron acceptor in the electron transport chain?",opts:["NAD⁺","CO₂","Water","Oxygen"],ans:3,exp:"Oxygen (O₂) is the final electron acceptor in aerobic respiration. It combines with H⁺ and electrons at the end of the ETC to form water (H₂O) as a byproduct."}]},
+  {name:"Plant Biology",icon:"🌱",color:"#3f6212",sub:"Xylem, phloem, transpiration, hormones, growth",num:"Topic 9 (HL)",summary:{title:"Plant Biology (HL)",points:["Water moves from roots → stem → leaves via xylem (dead hollow cells reinforced with lignin). Driving force: transpiration pull (tension-cohesion-adhesion).", "Transpiration rate is affected by: light intensity, temperature, humidity, and wind speed. Measured with a potometer.","Phloem transports organic solutes (sucrose, amino acids) from source (photosynthetic leaves) to sink (roots, fruits). Companion cells load sucrose via active co-transport.","Transpiration is reduced in xerophytes (desert plants) by: thick waxy cuticle, sunken stomata, CAM metabolism (stomata open at night), reduced leaf area (spines).", "Auxin controls phototropism: light causes auxin to redistribute to the shaded side, promoting elongation there, causing bending toward light.","Germination requires water (rehydration), oxygen (for respiration), and warmth (optimal enzyme activity)."],defs:[{term:"Transpiration",def:"Loss of water vapour from leaves through stomata. Creates a pulling force that draws water up through xylem."},{term:"Source and sink",def:"Source = where sucrose is produced (leaves). Sink = where sucrose is used or stored (roots, fruits, growing tips)."}],tip:"Xylem vs Phloem: Xylem = water + minerals, dead cells, moves upward only. Phloem = organic solutes (sucrose), living cells (with companion cells), moves both up and down."},diagram:{title:"Water Transport in Plants (TACT mechanism)",svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif"><rect width="480" height="300" fill="#f8faf8" rx="8"/><rect x="200" y="10" width="80" height="50" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="240" y="32" text-anchor="middle" fill="#14532d" font-size="11" font-weight="700">LEAF</text><text x="240" y="48" text-anchor="middle" fill="#15803d" font-size="9">stomata open</text><rect x="215" y="60" width="50" height="150" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/><text x="240" y="140" text-anchor="middle" fill="#14532d" font-size="10" font-weight="700">XYLEM</text><text x="240" y="155" text-anchor="middle" fill="#15803d" font-size="9">lignified</text><text x="240" y="168" text-anchor="middle" fill="#15803d" font-size="9">dead cells</text><rect x="200" y="210" width="80" height="50" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="240" y="232" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">ROOT</text><text x="240" y="248" text-anchor="middle" fill="#92400e" font-size="9">osmosis from soil</text><defs><marker id="a7" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs><line x1="240" y1="60" x2="240" y2="62" stroke="#0f766e" stroke-width="3" marker-end="url(#a7)"/><text x="310" y="85" fill="#0f766e" font-size="10" font-weight="700">T - Transpiration</text><text x="310" y="100" fill="#0f766e" font-size="9">Water evaporates</text><text x="310" y="113" fill="#0f766e" font-size="9">from leaf surface</text><text x="310" y="140" fill="#0f766e" font-size="10" font-weight="700">A - Adhesion</text><text x="310" y="155" fill="#0f766e" font-size="9">Water sticks to</text><text x="310" y="168" fill="#0f766e" font-size="9">xylem walls</text><text x="20" y="100" fill="#065f46" font-size="10" font-weight="700">C - Cohesion</text><text x="20" y="115" fill="#065f46" font-size="9">Water molecules</text><text x="20" y="128" fill="#065f46" font-size="9">stick together</text><text x="20" y="155" fill="#065f46" font-size="10" font-weight="700">T - Tension</text><text x="20" y="170" fill="#065f46" font-size="9">Negative pressure</text><text x="20" y="183" fill="#065f46" font-size="9">pulls water up</text><line x1="200" y1="120" x2="270" y2="120" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/><line x1="200" y1="150" x2="270" y2="150" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/></svg>`,caption:"The TACT mechanism explains water movement in plants: Transpiration → Tension → Cohesion → Adhesion. Water moves from soil → root → xylem → leaf → air."},flashcards:[{q:"How does auxin cause phototropism?",a:"Light causes auxin to migrate to the shaded side of the shoot. Higher auxin concentration on the shaded side promotes cell elongation there. The shaded side grows faster, causing the shoot to bend toward the light."},{q:"What adaptations do xerophytes have to reduce water loss?",a:"Thick waxy cuticle, sunken stomata (reduces air movement over stomata), CAM metabolism (stomata open at night), reduced leaf area (e.g., spines in cacti), rolled leaves, small leaves."}],mnemonics:[{topic:"Conditions for germination",word:"WOW",expand:"<span>W</span>ater (to rehydrate and activate enzymes) · <span>O</span>xygen (for aerobic respiration) · <span>W</span>armth (optimal temperature for enzymes)"}],quiz:[{q:"What structure loads sucrose into the phloem sieve tubes?",opts:["Xylem vessels","Guard cells","Companion cells","Root hair cells"],ans:2,exp:"Companion cells actively load sucrose into sieve tubes using co-transporter proteins and H⁺ gradients (secondary active transport)."},{q:"Which direction does water move during osmosis in a plant root taking up water from the soil?",opts:["From root cells into the soil","From the soil into root cells","From the xylem to the soil","From leaves to the root"],ans:1,exp:"Root cells have a higher solute concentration than the dilute soil solution, so water moves by osmosis from the soil (low solute) into root cells (high solute)."}]},
+  {name:"Animal Physiology",icon:"🦴",color:"#6d28d9",sub:"Immunity, muscles, kidneys, reproduction",num:"Topic 10 (HL)",summary:{title:"Animal Physiology (HL)",points:["Antibodies are Y-shaped glycoproteins made of 2 heavy + 2 light polypeptide chains. Variable regions at the tips bind specific antigens. Produced by plasma cells (activated B lymphocytes).","Monoclonal antibodies are produced by fusing B plasma cells with tumour cells (hybridomas). Used in pregnancy tests (anti-HCG), cancer therapy, and diagnostics.","Muscle contraction (sliding filament theory): action potential → Ca²⁺ released → binds troponin → tropomyosin moves → myosin heads bind actin → power stroke (ADP + Pi released) → new ATP binds → cycle repeats.","Kidney (nephron): glomerulus (ultrafiltration) → proximal convoluted tubule (reabsorption of glucose, amino acids, 80% ions) → loop of Henle (salt/water regulation) → distal tubule → collecting duct (ADH regulates water).","ADH (anti-diuretic hormone): released when blood water is low → collecting duct inserts aquaporins → more water reabsorbed → concentrated urine.","Spermatogenesis (testes): continuous production, 4 sperm per meiosis. Oogenesis (ovaries): begins in fetal development, 1 egg per month, 3 polar bodies per meiosis."],defs:[{term:"Ultrafiltration",def:"Non-selective filtration of blood at the Bowman's capsule. Pressure forces small molecules (glucose, water, urea, ions) into the nephron. Large proteins and blood cells remain in the blood."},{term:"Sliding filament theory",def:"Muscle contraction occurs when actin filaments slide over myosin filaments. Z-lines come closer together; I-bands (light bands) shorten; A-band stays the same width."}],tip:"Remember the sarcomere zones: I band = actin only (light). A band = myosin (may overlap with actin). H zone = myosin only. During contraction: I and H bands shrink; A band stays the same!"},diagram:{title:"Nephron & Kidney Function",svg:`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,sans-serif"><rect width="480" height="300" fill="#f8faf8" rx="8"/><ellipse cx="130" cy="60" rx="35" ry="30" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/><text x="130" y="55" text-anchor="middle" fill="#1e3a5f" font-size="10" font-weight="700">Glomerulus</text><text x="130" y="68" text-anchor="middle" fill="#1e40af" font-size="9">Ultrafiltration</text><rect x="180" y="40" width="80" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/><text x="220" y="58" text-anchor="middle" fill="#14532d" font-size="10" font-weight="700">PCT</text><text x="220" y="72" text-anchor="middle" fill="#15803d" font-size="9">Reabsorption</text><rect x="285" y="40" width="90" height="40" rx="6" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/><text x="330" y="55" text-anchor="middle" fill="#831843" font-size="9" font-weight="700">Loop of Henle</text><text x="330" y="70" text-anchor="middle" fill="#9d174d" font-size="9">Salt/water balance</text><rect x="180" y="120" width="80" height="40" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/><text x="220" y="138" text-anchor="middle" fill="#78350f" font-size="10" font-weight="700">DCT</text><text x="220" y="152" text-anchor="middle" fill="#92400e" font-size="9">Fine-tuning</text><rect x="285" y="120" width="90" height="40" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/><text x="330" y="138" text-anchor="middle" fill="#4c1d95" font-size="10" font-weight="700">Collecting Duct</text><text x="330" y="152" text-anchor="middle" fill="#5b21b6" font-size="9">ADH → aquaporins</text><defs><marker id="a8" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#374151"/></marker></defs><line x1="165" y1="60" x2="183" y2="60" stroke="#374151" stroke-width="1.5" marker-end="url(#a8)"/><line x1="260" y1="60" x2="283" y2="60" stroke="#374151" stroke-width="1.5" marker-end="url(#a8)"/><line x1="330" y1="82" x2="330" y2="118" stroke="#374151" stroke-width="1.5" marker-end="url(#a8)"/><line x1="260" y1="140" x2="283" y2="140" stroke="#374151" stroke-width="1.5" marker-end="url(#a8)"/><line x1="220" y1="82" x2="220" y2="118" stroke="#374151" stroke-width="1.5" marker-end="url(#a8)"/><rect x="10" y="200" width="460" height="85" rx="8" fill="#fff" stroke="#d4e8d4" stroke-width="1"/><text x="240" y="220" text-anchor="middle" fill="#1a3a1a" font-size="11" font-weight="700">Composition changes through the nephron</text><text x="240" y="238" text-anchor="middle" fill="#374151" font-size="10">Glomerular filtrate: glucose ✓ | amino acids ✓ | urea ✓ | ions ✓ | NO proteins | NO RBCs</text><text x="240" y="255" text-anchor="middle" fill="#374151" font-size="10">After PCT: glucose ✗ (all reabsorbed) | urea ↑ (concentrated)</text><text x="240" y="272" text-anchor="middle" fill="#374151" font-size="10">Final urine: no glucose, concentrated urea, volume regulated by ADH</text></svg>`,caption:"The nephron filtration process. PCT = proximal convoluted tubule (most reabsorption). ADH controls water reabsorption in the collecting duct."},flashcards:[{q:"What is the sliding filament theory?",a:"Muscle contraction occurs when myosin heads bind to actin, pivot (power stroke), release, and reattach further along. Actin filaments slide toward the M-line, shortening the sarcomere. Ca²⁺ enables this by moving tropomyosin off the myosin binding sites."},{q:"How does ADH regulate water levels?",a:"When blood osmolarity is high (too little water), the pituitary releases ADH. ADH causes collecting duct cells to insert aquaporins (water channels) into their membranes, allowing more water to be reabsorbed. This produces small volumes of concentrated urine."},{q:"What is the difference between spermatogenesis and oogenesis?",a:"Spermatogenesis: continuous from puberty, produces 4 equal sperm per meiosis. Oogenesis: starts in fetal development, produces 1 egg + 3 polar bodies (unequal division — egg gets most cytoplasm). Released once per menstrual cycle."}],mnemonics:[{topic:"Sarcomere bands during contraction",word:"I Hate (shrink) A lot (stays)",expand:"During contraction: <span>I</span> band <span>shrinks</span> (actin only zone narrows). <span>H</span> zone <span>shrinks</span> (myosin-only zone narrows). <span>A</span> band <span>stays the same</span> (myosin length unchanged)."}],quiz:[{q:"What condition results from a low concentration of ADH?",opts:["Concentrated urine, small volume","Dilute urine, large volume","No urine production","Blood in urine"],ans:1,exp:"Without ADH, collecting duct cells have few aquaporins so little water is reabsorbed. Large volumes of dilute urine are produced (diabetes insipidus)."},{q:"During muscle contraction, calcium ions bind to which protein?",opts:["Myosin","Actin","Troponin","Tropomyosin"],ans:2,exp:"Ca²⁺ binds to troponin, which is part of the troponin-tropomyosin complex. This causes tropomyosin to shift, exposing the myosin-binding sites on actin, allowing the cross-bridge cycle to proceed."}]}
+];
+
+let curTopic = 0, curTab = 'summary', curCard = 0, cardFlipped = false;
+
+function buildTopicGrid(){
+  const g = document.getElementById('topic-grid');
+  g.innerHTML = topics.map((t,i)=>`
+    <div class="topic-card" style="--accent:${t.color}" onclick="openTopic(${i})">
+      <span class="topic-num">${t.num}</span>
+      <div class="topic-icon">${t.icon}</div>
+      <h3>${t.name}</h3>
+      <p>${t.sub}</p>
+    </div>`).join('');
+}
+
+function showHome(){
+  document.getElementById('home-view').style.display='block';
+  document.getElementById('topic-view').style.display='none';
+  document.querySelectorAll('.nav-link').forEach((l,i)=>{l.classList.toggle('active',i===0)});
+}
+
+function openTopic(i){
+  curTopic = i;
+  curTab = 'summary';
+  const t = topics[i];
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('topic-view').style.display='block';
+  document.getElementById('topic-header').innerHTML=`
+    <h2 style="font-size:1.5rem;color:${t.color};display:flex;align-items:center;gap:0.5rem">
+      ${t.icon} ${t.name} <span style="font-size:0.8rem;color:#5a7a5a;font-weight:400">${t.num}</span>
+    </h2>`;
+  document.querySelectorAll('.nav-link').forEach((l,j)=>{l.classList.toggle('active',j===i+1)});
+  switchTab('summary');
+  window.scrollTo(0,0);
+}
+
+function switchTab(tab){
+  curTab = tab;
+  curCard = 0; cardFlipped = false;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab')[['summary','diagram','flashcards','mnemonics','quiz'].indexOf(tab)].classList.add('active');
+  renderTab();
+}
+
+function renderTab(){
+  const t = topics[curTopic];
+  const el = document.getElementById('tab-content');
+  if(curTab==='summary') el.innerHTML = renderSummary(t.summary);
+  else if(curTab==='diagram') el.innerHTML = renderDiagram(t.diagram);
+  else if(curTab==='flashcards') renderFlashcards(t.flashcards);
+  else if(curTab==='mnemonics') el.innerHTML = renderMnemonics(t.mnemonics);
+  else if(curTab==='quiz') el.innerHTML = renderQuiz(t.quiz);
+}
+
+function renderSummary(s){
+  return `<div class="summary-box">
+    <h2>${s.title}</h2>
+    ${s.points.map(p=>`<div class="key-point"><div class="key-dot"></div><p>${p}</p></div>`).join('')}
+    ${s.defs.map(d=>`<div class="def-box"><strong>${d.term}:</strong> ${d.def}</div>`).join('')}
+    <div class="tip-box">💡 <strong>Exam Tip:</strong> ${s.tip}</div>
+  </div>`;
+}
+
+function renderDiagram(d){
+  return `<div class="diagram-box">
+    <h3 style="margin-bottom:1rem;font-size:1rem;color:#1a3a1a">${d.title}</h3>
+    ${d.svg}
+    <p class="diagram-caption">${d.caption}</p>
+  </div>`;
+}
+
+function renderFlashcards(cards){
+  const el = document.getElementById('tab-content');
+  const c = cards[curCard];
+  el.innerHTML=`
+    <div class="flashcard-area">
+      <div class="flashcard${cardFlipped?' flipped':''}" onclick="flipCard()" id="fc">
+        <div class="card-front">
+          <div>
+            <h3>${c.q}</h3>
+            <p class="card-hint">Click to reveal answer</p>
+          </div>
+        </div>
+        <div class="card-back"><p>${c.a}</p></div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn" onclick="prevCard()">← Previous</button>
+      <span class="fc-progress">${curCard+1} / ${cards.length}</span>
+      <button class="fc-btn primary" onclick="nextCard()">Next →</button>
+    </div>`;
+}
+
+function flipCard(){cardFlipped=!cardFlipped;document.getElementById('fc').classList.toggle('flipped');}
+function nextCard(){const cards=topics[curTopic].flashcards;curCard=(curCard+1)%cards.length;cardFlipped=false;renderFlashcards(cards);}
+function prevCard(){const cards=topics[curTopic].flashcards;curCard=(curCard-1+cards.length)%cards.length;cardFlipped=false;renderFlashcards(cards);}
+
+function renderMnemonics(mnemonics){
+  return mnemonics.map(m=>`
+    <div class="mnemonic-card">
+      <h3>${m.topic}</h3>
+      <div class="mnemonic-word">${m.word}</div>
+      <div class="mnemonic-expand">${m.expand}</div>
+    </div>`).join('');
+}
+
+function renderQuiz(quiz){
+  return quiz.map((q,qi)=>`
+    <div class="quiz-q" id="qq${qi}">
+      <p>${qi+1}. ${q.q}</p>
+      ${q.opts.map((o,oi)=>`
+        <div class="option" onclick="checkAnswer(${qi},${oi})" id="opt${qi}-${oi}">
+          <div class="option-circle">${String.fromCharCode(65+oi)}</div>
+          ${o}
+        </div>`).join('')}
+      <div class="feedback" id="fb${qi}"></div>
+    </div>`).join('');
+}
+
+function checkAnswer(qi,oi){
+  const q = topics[curTopic].quiz[qi];
+  document.querySelectorAll(`#qq${qi} .option`).forEach(o=>o.style.pointerEvents='none');
+  const sel = document.getElementById(`opt${qi}-${oi}`);
+  const cor = document.getElementById(`opt${qi}-${q.ans}`);
+  cor.classList.add('correct');
+  if(oi!==q.ans) sel.classList.add('wrong');
+  const fb = document.getElementById(`fb${qi}`);
+  fb.className = `feedback show ${oi===q.ans?'correct':'wrong'}`;
+  fb.textContent = (oi===q.ans?'✅ Correct! ':'❌ Incorrect. ') + q.exp;
+}
+
+buildTopicGrid();
+</script>
+</body>
+</html>
