@@ -19,6 +19,23 @@ nav{background:#fff;border-bottom:1px solid #d4e8d4;position:sticky;top:0;z-inde
 .nav-link:hover{background:#e8f5e8;color:#2d6a2d}
 .nav-link.active{background:#2d6a2d;color:#fff}
 .hl-badge{background:#e8f0ff;color:#3a5bc7;font-size:0.7rem;padding:2px 7px;border-radius:10px;font-weight:600}
+.quick-btn{padding:4px 12px;border-radius:20px;border:1px solid #d4e8d4;background:#f8faf8;color:#2d6a2d;font-size:0.78rem;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.quick-btn:hover{background:#2d6a2d;color:#fff}
+.ai-card{background:#fff;border:1px solid #d4e8d4;border-radius:12px;padding:1.25rem;margin-bottom:0.75rem}
+.ai-card h3{font-size:0.85rem;font-weight:700;color:#5a7a5a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem}
+.ai-fc{background:#f0f8f0;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.2s;border:1px solid #d4e8d4}
+.ai-fc:hover{border-color:#2d6a2d}
+.ai-fc .q{font-size:0.88rem;font-weight:600;color:#1a3a1a}
+.ai-fc .a{font-size:0.85rem;color:#2d6a2d;margin-top:0.4rem;display:none;line-height:1.5}
+.ai-fc.open .a{display:block}
+.ai-fc.open{background:#e8f5e8}
+.ai-opt{padding:0.5rem 0.85rem;border-radius:8px;border:1px solid #d4e8d4;margin-bottom:0.4rem;cursor:pointer;font-size:0.85rem;color:#2a4a2a;transition:all 0.2s}
+.ai-opt:hover{border-color:#2d6a2d;background:#f0f8f0}
+.ai-opt.correct{background:#dcf7dc;border-color:#2d6a2d;color:#14532d}
+.ai-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#7f1d1d}
+.ai-loading{text-align:center;padding:2rem;color:#5a7a5a}
+.ai-loading .spinner{width:32px;height:32px;border:3px solid #d4e8d4;border-top-color:#2d6a2d;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* HERO */
 .hero{background:linear-gradient(135deg,#1a3a1a 0%,#2d6a2d 100%);color:#fff;padding:3rem 1.5rem;text-align:center}
@@ -176,6 +193,150 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
 </div>
 
 <script>
+async function generateStudy(){
+  const input = document.getElementById('ai-input').value.trim();
+  if(!input) return;
+  const out = document.getElementById('ai-output');
+  const btn = document.getElementById('ai-btn');
+  out.style.display='block';
+  btn.disabled=true;
+  btn.textContent='Generating...';
+  out.innerHTML=`<div class="ai-loading"><div class="spinner"></div><p>Creating your personalised study pack for <strong>"${input}"</strong>...</p></div>`;
+
+  const prompt = `You are an expert IB Biology tutor. Create a comprehensive study pack for the topic: "${input}" in the context of IB Biology HL/SL.
+
+Return ONLY a valid JSON object (no markdown, no backticks) with this exact structure:
+{
+  "topic": "topic name",
+  "summary": "2-3 sentence overview of the topic",
+  "keyPoints": ["point 1", "point 2", "point 3", "point 4", "point 5"],
+  "flashcards": [
+    {"q": "question", "a": "answer"},
+    {"q": "question", "a": "answer"},
+    {"q": "question", "a": "answer"},
+    {"q": "question", "a": "answer"}
+  ],
+  "mnemonic": {"phrase": "mnemonic phrase", "explanation": "what each letter/word stands for"},
+  "examTip": "important exam tip",
+  "definitions": [
+    {"term": "term", "def": "definition"},
+    {"term": "term", "def": "definition"},
+    {"term": "term", "def": "definition"}
+  ],
+  "quiz": [
+    {"q": "question", "opts": ["A", "B", "C", "D"], "ans": 0, "exp": "explanation"},
+    {"q": "question", "opts": ["A", "B", "C", "D"], "ans": 1, "exp": "explanation"},
+    {"q": "question", "opts": ["A", "B", "C", "D"], "ans": 2, "exp": "explanation"}
+  ],
+  "commonMistakes": ["mistake 1", "mistake 2", "mistake 3"],
+  "sources": [
+    {"title": "source name", "url": "https://...", "type": "Video/Article/Textbook"},
+    {"title": "source name", "url": "https://...", "type": "Video/Article/Textbook"}
+  ]
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    const d = JSON.parse(text);
+    renderAIOutput(d);
+  } catch(e) {
+    out.innerHTML=`<div class="ai-card" style="border-color:#ef4444"><p style="color:#7f1d1d">⚠️ Something went wrong. Please try again.</p></div>`;
+  }
+  btn.disabled=false;
+  btn.textContent='Generate ✨';
+}
+
+function quickSearch(q){
+  document.getElementById('ai-input').value=q;
+  generateStudy();
+}
+
+function renderAIOutput(d){
+  const out = document.getElementById('ai-output');
+  let html = `
+    <div style="background:#2d6a2d;color:#fff;border-radius:12px;padding:1.25rem;margin-bottom:0.75rem">
+      <h3 style="font-size:1.1rem;margin-bottom:0.5rem;color:#fff">📖 ${d.topic}</h3>
+      <p style="font-size:0.9rem;opacity:0.9;line-height:1.6">${d.summary}</p>
+    </div>
+
+    <div class="ai-card">
+      <h3>⭐ Key Points</h3>
+      ${d.keyPoints.map(p=>`<div style="display:flex;gap:0.5rem;margin-bottom:0.5rem"><div style="width:7px;height:7px;border-radius:50%;background:#2d6a2d;margin-top:6px;flex-shrink:0"></div><p style="font-size:0.88rem;line-height:1.5;color:#2a4a2a">${p}</p></div>`).join('')}
+    </div>
+
+    <div class="ai-card">
+      <h3>📖 Key Definitions</h3>
+      ${d.definitions.map(d=>`<div style="background:#f0f8f0;border-left:3px solid #2d6a2d;padding:0.6rem 0.85rem;border-radius:0 8px 8px 0;margin-bottom:0.5rem;font-size:0.85rem"><strong style="color:#2d6a2d">${d.term}:</strong> ${d.def}</div>`).join('')}
+    </div>
+
+    <div class="ai-card">
+      <h3>🃏 Flashcards <span style="font-size:0.75rem;color:#8aaa8a;font-weight:400;text-transform:none">(click to reveal)</span></h3>
+      ${d.flashcards.map((f,i)=>`<div class="ai-fc" onclick="this.classList.toggle('open')">
+        <div class="q">Q: ${f.q}</div>
+        <div class="a">✅ ${f.a}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="ai-card">
+      <h3>🧠 Mnemonic</h3>
+      <div style="font-size:1.4rem;font-weight:700;color:#2d6a2d;margin-bottom:0.5rem">${d.mnemonic.phrase}</div>
+      <div style="font-size:0.88rem;color:#2a4a2a;line-height:1.6">${d.mnemonic.explanation}</div>
+    </div>
+
+    <div class="ai-card" style="background:#fffbeb;border-color:#f59e0b">
+      <h3 style="color:#b45309">💡 Exam Tip</h3>
+      <p style="font-size:0.88rem;color:#78350f;line-height:1.6">${d.examTip}</p>
+    </div>
+
+    <div class="ai-card">
+      <h3>✅ Mini Quiz</h3>
+      ${d.quiz.map((q,qi)=>`
+        <div style="margin-bottom:1rem" id="aiq${qi}">
+          <p style="font-size:0.9rem;font-weight:600;color:#1a3a1a;margin-bottom:0.5rem">${qi+1}. ${q.q}</p>
+          ${q.opts.map((o,oi)=>`<div class="ai-opt" onclick="checkAI(${qi},${oi},${q.ans},'${q.exp.replace(/'/g,"\\'")}',this)">${String.fromCharCode(65+oi)}. ${o}</div>`).join('')}
+          <div id="aiexp${qi}" style="display:none;font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:6px;margin-top:0.4rem"></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="ai-card" style="border-color:#fca5a5">
+      <h3 style="color:#b91c1c">⚠️ Common Mistakes</h3>
+      ${d.commonMistakes.map(m=>`<div style="display:flex;gap:0.5rem;margin-bottom:0.4rem"><span style="color:#ef4444;font-size:1rem">✗</span><p style="font-size:0.88rem;color:#2a4a2a">${m}</p></div>`).join('')}
+    </div>
+
+    <div class="ai-card">
+      <h3>🔗 Recommended Sources</h3>
+      ${d.sources.map(s=>`<a href="${s.url}" target="_blank" style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.85rem;border:1px solid #d4e8d4;border-radius:8px;margin-bottom:0.5rem;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#2d6a2d'" onmouseout="this.style.borderColor='#d4e8d4'">
+        <span style="font-size:1.2rem">${s.type==='Video'?'▶️':'📄'}</span>
+        <div><div style="font-size:0.88rem;font-weight:600;color:#1a3a1a">${s.title}</div><div style="font-size:0.75rem;color:#5a7a5a">${s.type}</div></div>
+        <span style="margin-left:auto;color:#2d6a2d;font-size:0.8rem">→</span>
+      </a>`).join('')}
+    </div>`;
+  out.innerHTML = html;
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function checkAI(qi,oi,ans,exp,el){
+  const container = document.getElementById(`aiq${qi}`);
+  container.querySelectorAll('.ai-opt').forEach(o=>o.style.pointerEvents='none');
+  container.querySelectorAll('.ai-opt')[ans].classList.add('correct');
+  if(oi!==ans) el.classList.add('wrong');
+  const expEl = document.getElementById(`aiexp${qi}`);
+  expEl.style.display='block';
+  expEl.style.background = oi===ans?'#dcf7dc':'#fee2e2';
+  expEl.style.color = oi===ans?'#14532d':'#7f1d1d';
+  expEl.textContent = (oi===ans?'✅ Correct! ':'❌ Incorrect. ') + exp;
+}
+
 const topics = [
   {
     name:"Cell Biology",icon:"🔬",color:"#2d6a2d",sub:"Cell theory, membranes, transport, division",num:"Topic 1",
